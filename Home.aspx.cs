@@ -82,7 +82,7 @@ namespace _200776P_PracAssignment
                     {
                         // Retrieve image data
                         byte[] imageData = (byte[]) reader["Photo"];
-                        photo.ImageUrl = "data:Image/png;base64," + Convert.ToBase64String(imageData);
+                        photo.ImageUrl = "data:Image/png;base64," + HttpUtility.HtmlEncode(Convert.ToBase64String(imageData));
                         fullname.Text = HttpUtility.HtmlEncode(reader["FName"].ToString() + " " + reader["LName"].ToString());
                         fName_display.Text = HttpUtility.HtmlEncode(reader["FName"].ToString());
                         lName_display.Text = HttpUtility.HtmlEncode(reader["LName"].ToString());
@@ -94,7 +94,7 @@ namespace _200776P_PracAssignment
                         IV = Convert.FromBase64String(reader["IV"].ToString());
                         Key = Convert.FromBase64String(reader["Key"].ToString());
                     }
-                    CCInfo_display.Text = decryptData(CCInfo);
+                    CCInfo_display.Text = HttpUtility.HtmlEncode(decryptData(CCInfo));
                 }
             }
 

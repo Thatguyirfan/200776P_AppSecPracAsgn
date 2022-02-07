@@ -18,6 +18,20 @@ namespace _200776P_PracAssignment
     {
         string MyDBConnectionString =
             System.Configuration.ConfigurationManager.ConnectionStrings["MYDBConnection"].ConnectionString;
+        string fName;
+        string lName;
+        string globalEmail;
+        string password;
+        string DOB;
+        string CCInfo;
+        byte[] imageBytes;
+        static string finalHash;
+        static string salt;
+        byte[] Key;
+        byte[] IV;
+        int emailVerified;
+        int globalAttemptsLeft;
+
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -55,6 +69,7 @@ namespace _200776P_PracAssignment
                                 // Create session if login credentials are valid
                                 if (userHash.Equals(dbHash))
                                 {
+                                    globalEmail = email;
                                     Session["LoggedIn"] = email;
 
                                     string guid = Guid.NewGuid().ToString();
@@ -108,6 +123,54 @@ namespace _200776P_PracAssignment
                 loginMsg.Text = "Incorrect username or password";
             }
         }
+
+        // Function to add LoggedIn details in audit table
+        //protected void auditLogin()
+        //{
+
+        //}
+
+        //protected void retrieveDetails()
+        //{
+        //    SqlConnection connection = new SqlConnection(MyDBConnectionString);
+        //    string sql = "SELECT * FROM Account WHERE Email=@Email";
+        //    SqlCommand command = new SqlCommand(sql, connection);
+        //    command.Parameters.AddWithValue("@Email", globalEmail);
+
+        //    try
+        //    {
+        //        connection.Open();
+
+        //        using (SqlDataReader reader = command.ExecuteReader())
+        //        {
+        //            while (reader.Read())
+        //            {
+        //                // Retrieve image data
+        //                fName = reader["FName"].ToString();
+        //                lName = reader["LName"].ToString();
+        //                globalEmail = reader["Email"].ToString();
+        //                finalHash = reader["PasswordHash"].ToString();
+        //                DOB = reader["DOB"].ToString();
+        //                imageBytes = (byte[])reader["Photo"];
+        //                CCInfo = reader["CCInfo"].ToString();
+        //                salt = reader["PasswordSalt"].ToString();
+        //                IV = (byte[])reader["IV"];
+        //                Key = (byte[])reader["Key"];
+        //                emailVerified = Convert.ToInt32(reader["EmailVerified"]);
+        //                globalAttemptsLeft = Convert.ToInt32(reader["AttemptsLeft"]);
+        //            }
+        //        }
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception(ex.ToString());
+        //    }
+
+        //    finally { connection.Close(); }
+
+        //    return;
+        //}
 
         // Function to reset number of login attempts on successful login
         protected void resetLoginAttempts(string email)

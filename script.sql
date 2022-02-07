@@ -15,8 +15,10 @@ CREATE TABLE [dbo].[AccountAudit] (
     [Key]           NVARCHAR (MAX)   NOT NULL,
     [EmailVerified] INT              NOT NULL,
     [AttemptsLeft]  INT              NOT NULL,
-    [UpdatedBy]     NVARCHAR (128),
-    [UpdatedOn]     DATETIME,
+    [UpdatedBy]     NVARCHAR (128)   NOT NULL,
+    [UpdatedOn]     DATETIME         NOT NULL,
+    [LoggedIn] DATETIME NULL, 
+    [LoggedOut] DATETIME NULL, 
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
