@@ -30,7 +30,7 @@ namespace _200776P_PracAssignment
 
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            
         }
 
         private int checkPassword(string password)
@@ -268,7 +268,7 @@ namespace _200776P_PracAssignment
             {
                 string sqlString = "INSERT INTO Account VALUES(" +
                     "@Id, @FName, @LName, @Email, @PasswordHash, @DOB, " +
-                    "@Photo, @CCInfo, @PasswordSalt, @IV, @Key, @EmailVerified, @AttemptsLeft)";
+                    "@Photo, @CCInfo, @PasswordSalt, @IV, @Key, @EmailVerified, @AttemptsLeft, @LastPwdUpdate)";
 
                 using (SqlConnection con = new SqlConnection(MyDBConnectionString))
                 {
@@ -290,6 +290,7 @@ namespace _200776P_PracAssignment
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
                             cmd.Parameters.AddWithValue("@EmailVerified", 0);
                             cmd.Parameters.AddWithValue("@AttemptsLeft", 3);
+                            cmd.Parameters.AddWithValue("@LastPwdUpdate", DateTime.Now);
 
                             cmd.Connection = con;
                             con.Open();
@@ -336,7 +337,7 @@ namespace _200776P_PracAssignment
 
             string captchaResponse = Request.Form["g-recaptcha-response"];
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(
-                "https://www.google.com/recaptcha/api/siteverify?secret=6Ldga1UeAAAAAPN0rZv1SBZXMsCqbzUShnMQPBz2 &response=" + captchaResponse
+                "https://www.google.com/recaptcha/api/siteverify?secret=6Ldga1UeAAAAAPN0rZv1SBZXMsCqbzUShnMQPBz2 &response=" + HttpUtility.UrlEncode(captchaResponse)
                 );
 
             try

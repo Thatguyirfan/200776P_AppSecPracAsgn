@@ -147,24 +147,36 @@ namespace _200776P_PracAssignment
 
             string finalHash = Convert.ToBase64String(hashWithSalt);
             
+            // Error if current password == new password
             if (finalHash.Equals(dbHash))
             {
                 errorMsg.Text = "New password cannot be the same as the current password";
                 return;
             }
+
+            // Error if new password == 1 of 2 last passwords
             else if (passwordHistory(email).Contains(finalHash))
             {
                 errorMsg.Text = "New password cannot be the same as the last 2 passwords";
                 return;
             }
+
+            // Error if time of password update is within 1 day of time that password was last changed
+            else if (passwordAge(email).AddDays(1) > DateTime.Now)
+            {
+                errorMsg.Text = "You cannot change passwords more than once within 1 day";
+                return;
+            }
+
             else
             {
                 // Update database with new value for Password
                 SqlConnection connection = new SqlConnection(MyDBConnectionString);
-                string sqlUpdate = "UPDATE Account SET PasswordHash=@PasswordHash, PasswordSalt=@PasswordSalt WHERE Email=@Email";
+                string sqlUpdate = "UPDATE Account SET PasswordHash=@PasswordHash, PasswordSalt=@PasswordSalt, LastPwdUpdate=@LastPwdUpdate WHERE Email=@Email";
                 SqlCommand command = new SqlCommand(sqlUpdate, connection);
                 command.Parameters.AddWithValue("@PasswordHash", finalHash);
                 command.Parameters.AddWithValue("@PasswordSalt", salt);
+                command.Parameters.AddWithValue("@LastPwdUpdate", DateTime.Now);
                 command.Parameters.AddWithValue("@Email", email);
 
                 try
@@ -186,7 +198,46 @@ namespace _200776P_PracAssignment
             }
         }
 
-        // Function to check password history
+        // Function to retrieve time that password was last changed
+        protected DateTime passwordAge(string email)
+        {
+            DateTime pwdAge = DateTime.MinValue;
+
+            SqlConnection connection = new SqlConnection(MyDBConnectionString);
+            // SQL statement to select last 2 unique password hashes
+            string sql = "SELECT LastPwdUpdate FROM Account WHERE Email = @Email;";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@Email", email);
+
+            try
+            {
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["LastPwdUpdate"] != null && reader["LastPwdUpdate"] != DBNull.Value)
+                        {
+                            string dbPwdAge = reader["LastPwdUpdate"].ToString();
+
+                            pwdAge = DateTime.Parse(dbPwdAge);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            finally { connection.Close(); }
+
+            return pwdAge;
+        }
+
+        // Function to retrieve password history
         protected List<String> passwordHistory(string email)
         {
             List<String> pwdList = new List<String>();

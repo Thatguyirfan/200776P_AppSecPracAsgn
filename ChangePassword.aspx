@@ -17,34 +17,34 @@
 
     <script type="text/javascript">
         function validate() {
-            var str = document.getElementById("password").value;
-            document.getElementById("password_lbl").classList.remove("text-success");
-            document.getElementById("password_lbl").classList.add("text-danger");
+            var str = document.getElementById("newPassword").value;
+            document.getElementById("newPassword_lbl").classList.remove("text-success");
+            document.getElementById("newPassword_lbl").classList.add("text-danger");
 
             if (str.length < 12) {
-                document.getElementById("password_lbl").innerHTML = "Password must be more than 12 characters";
+                document.getElementById("newPassword_lbl").innerHTML = "Password must be more than 12 characters";
             }
 
             else if (str.search(/[0-9]/) == -1) {
-                document.getElementById("password_lbl").innerHTML = "Password must include at least 1 number";
+                document.getElementById("newPassword_lbl").innerHTML = "Password must include at least 1 number";
             }
 
             else if (str.search(/[A-Z]/) == -1) {
-                document.getElementById("password_lbl").innerHTML = "Password must include at least 1 uppercase letter";
+                document.getElementById("newPassword_lbl").innerHTML = "Password must include at least 1 uppercase letter";
             }
 
             else if (str.search(/[a-z]/) == -1) {
-                document.getElementById("password_lbl").innerHTML = "Password must include at least 1 lowercase letter";
+                document.getElementById("newPassword_lbl").innerHTML = "Password must include at least 1 lowercase letter";
             }
 
             else if (str.search(/[^a-zA-Z0-9\s]/) == -1) {
-                document.getElementById("password_lbl").innerHTML = "Password must include at least 1 special character";
+                document.getElementById("newPassword_lbl").innerHTML = "Password must include at least 1 special character";
             }
 
             else {
-                document.getElementById("password_lbl").innerHTML = "Excellent!";
-                document.getElementById("password_lbl").classList.remove("text-danger");
-                document.getElementById("password_lbl").classList.add("text-success");
+                document.getElementById("newPassword_lbl").innerHTML = "Excellent!";
+                document.getElementById("newPassword_lbl").classList.remove("text-danger");
+                document.getElementById("newPassword_lbl").classList.add("text-success");
             }
         }
     </script>

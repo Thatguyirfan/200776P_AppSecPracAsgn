@@ -372,7 +372,7 @@ namespace _200776P_PracAssignment
 
             string captchaResponse = Request.Form["g-recaptcha-response"];
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(
-                "https://www.google.com/recaptcha/api/siteverify?secret=6Ldga1UeAAAAAPN0rZv1SBZXMsCqbzUShnMQPBz2 &response=" + captchaResponse
+                "https://www.google.com/recaptcha/api/siteverify?secret=6Ldga1UeAAAAAPN0rZv1SBZXMsCqbzUShnMQPBz2 &response=" + HttpUtility.UrlEncode(captchaResponse)
                 );
 
             try
