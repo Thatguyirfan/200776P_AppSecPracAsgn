@@ -34,6 +34,12 @@ namespace _200776P_PracAssignment
                 {
                     // Retrieve email from session variable
                     email = Session["LoggedIn"].ToString();
+
+                    if (passwordAge(email).AddMonths(6) < DateTime.Now)
+                    {
+                        alertMsg_display.Text = "You need to change your password!";
+                    }
+
                     return;
                 }
                 else

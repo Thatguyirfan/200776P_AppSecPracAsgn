@@ -28,6 +28,14 @@ namespace _200776P_PracAssignment
                 {
                     // Retrieve email from session variable
                     email = Session["LoggedIn"].ToString();
+
+                    // User has to change password every 6 months
+                    // Maximum password age
+                    if (passwordAge(email).AddMonths(6) < DateTime.Now)
+                    {
+                        Response.Redirect("ChangePassword.aspx", false);
+                    }
+
                     retrieveDetails(email);
                     return;
                 }
@@ -136,6 +144,45 @@ namespace _200776P_PracAssignment
             }
 
             return plainText;
+        }
+
+        // Function to retrieve time that password was last changed
+        protected DateTime passwordAge(string email)
+        {
+            DateTime pwdAge = DateTime.MinValue;
+
+            SqlConnection connection = new SqlConnection(MyDBConnectionString);
+            // SQL statement to select last 2 unique password hashes
+            string sql = "SELECT LastPwdUpdate FROM Account WHERE Email = @Email;";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@Email", email);
+
+            try
+            {
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["LastPwdUpdate"] != null && reader["LastPwdUpdate"] != DBNull.Value)
+                        {
+                            string dbPwdAge = reader["LastPwdUpdate"].ToString();
+
+                            pwdAge = DateTime.Parse(dbPwdAge);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            finally { connection.Close(); }
+
+            return pwdAge;
         }
 
         protected void changePwdBtn_Click(object sender, EventArgs e)

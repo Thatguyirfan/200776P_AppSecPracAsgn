@@ -74,6 +74,9 @@
             <div id="sub-header" class="col-12">
                 <h1>Change Password</h1>
             </div>
+            <div class="alert alert-danger mt-4" role="alert">
+              <asp:Label ID="alertMsg_display" runat="server"></asp:Label>
+            </div>
         </div>
         <div class="row justify-content-center">
             <div class="col-8">
