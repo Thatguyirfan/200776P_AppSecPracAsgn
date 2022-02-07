@@ -152,6 +152,11 @@ namespace _200776P_PracAssignment
                 errorMsg.Text = "New password cannot be the same as the current password";
                 return;
             }
+            else if (passwordHistory(email).Contains(finalHash))
+            {
+                errorMsg.Text = "New password cannot be the same as the last 2 passwords";
+                return;
+            }
             else
             {
                 // Update database with new value for Password
@@ -179,6 +184,60 @@ namespace _200776P_PracAssignment
                 Response.Redirect("Home.aspx", false);
                 return;
             }
+        }
+
+        // Function to check password history
+        protected List<String> passwordHistory(string email)
+        {
+            List<String> pwdList = new List<String>();
+
+            SqlConnection connection = new SqlConnection(MyDBConnectionString);
+            // SQL statement to select last 2 unique password hashes
+            string sql = "SELECT PasswordHash, UpdatedOn FROM AccountAudit WHERE Email = @Email ORDER BY UpdatedOn DESC;";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@Email", email);
+
+            var dbHash = getDBHash(email);
+
+            try
+            {
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["PasswordHash"] != null && reader["PasswordHash"] != DBNull.Value)
+                        {
+                            var pwd = reader["PasswordHash"].ToString();
+
+                            if (!pwd.Equals(dbHash))
+                            {
+                                if (!pwdList.Contains(pwd))
+                                {
+                                    pwdList.Add(pwd);
+                                    Debug.WriteLine(pwd);
+
+                                    if (pwdList.Count() == 2)
+                                    {
+                                        return pwdList;
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            finally { connection.Close(); }
+
+            return pwdList;
         }
 
         private int checkPassword(string password)
