@@ -97,8 +97,9 @@
             <div class="col-4">
                 <div class="col-12">
                     <form runat="server" method="post">
+                        <asp:Button ID="verifyBtn" class="btn btn-success" Text="Verify email" runat="server" OnClick="verifyBtn_Click" />
                         <asp:Button ID="changePwdBtn" class="btn btn-primary" Text="Change password" runat="server" OnClick="changePwdBtn_Click" />
-                        <asp:Button ID="signOutBtn" class="btn btn-danger" runat="server" Text="Sign out" OnClick="signOutBtn_Click" />   
+                        <asp:Button ID="signOutBtn" class="btn btn-danger" Text="Sign out" runat="server"  OnClick="signOutBtn_Click" />   
                     </form> 
                 </div>
             </div>

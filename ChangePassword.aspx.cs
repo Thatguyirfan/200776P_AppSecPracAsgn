@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotNetEnv;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Diagnostics;
@@ -27,6 +28,11 @@ namespace _200776P_PracAssignment
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Replace string below with path to .env file
+            Env.Load("C:/Users/mdirf/Desktop/School/Y2S2/App. Security/Assignment/200776P_PracAssignment/.env");
+            //Env.Load();
+            //Env.TraversePath().Load();
+
             // Check if session is valid
             if (Session["LoggedIn"] != null && Session["AuthToken"] != null && Request.Cookies["AuthToken"] != null)
             {
@@ -440,7 +446,7 @@ namespace _200776P_PracAssignment
 
             string captchaResponse = Request.Form["g-recaptcha-response"];
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(
-                "https://www.google.com/recaptcha/api/siteverify?secret=6Ldga1UeAAAAAPN0rZv1SBZXMsCqbzUShnMQPBz2 &response=" + captchaResponse
+                "https://www.google.com/recaptcha/api/siteverify?secret=" + HttpUtility.UrlEncode(Environment.GetEnvironmentVariable("SECRET_KEY")) + " &response=" + HttpUtility.UrlEncode(captchaResponse)
                 );
 
             try

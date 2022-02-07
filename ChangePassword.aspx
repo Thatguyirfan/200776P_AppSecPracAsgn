@@ -46,6 +46,19 @@
                 document.getElementById("newPassword_lbl").classList.remove("text-danger");
                 document.getElementById("newPassword_lbl").classList.add("text-success");
             }
+
+            //function showDiv() {
+            //    var msgLength = document.getElementById("alertMsg_display").innerHTML.length;
+            //    console.log(msgLength);
+            //    if (msgLength == 0) {
+            //        document.getElementById("alertDiv").classList.remove("alert-danger");
+            //        document.getElementById("alertDiv").classList.add("hide");
+            //    }
+            //    else {
+            //        document.getElementById("alertDiv").classList.remove("hide");
+            //        document.getElementById("alertDiv").classList.add("alert-danger");
+            //    }
+            //}
         }
     </script>
 
@@ -74,9 +87,20 @@
             <div id="sub-header" class="col-12">
                 <h1>Change Password</h1>
             </div>
-            <div class="alert alert-danger mt-4" role="alert">
+            <div id="alertDiv" class="alert hide mt-4" role="alert">
               <asp:Label ID="alertMsg_display" runat="server"></asp:Label>
             </div>
+            <script type="text/javascript">
+                var msgLength = document.getElementById("alertMsg_display").innerHTML.length;
+                if (msgLength == 0) {
+                    document.getElementById("alertDiv").classList.remove("alert-danger");
+                    document.getElementById("alertDiv").classList.add("hide");
+                }
+                else {
+                    document.getElementById("alertDiv").classList.remove("hide");
+                    document.getElementById("alertDiv").classList.add("alert-danger");
+                }
+            </script>
         </div>
         <div class="row justify-content-center">
             <div class="col-8">

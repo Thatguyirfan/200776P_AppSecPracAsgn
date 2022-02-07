@@ -36,6 +36,15 @@ namespace _200776P_PracAssignment
                         Response.Redirect("ChangePassword.aspx", false);
                     }
 
+                    if (!checkEmailVerify())
+                    {
+                        verifyBtn.Visible = true;
+                    }
+                    else
+                    {
+                        verifyBtn.Visible = false;
+                    }
+
                     retrieveDetails(email);
                     return;
                 }
@@ -185,9 +194,52 @@ namespace _200776P_PracAssignment
             return pwdAge;
         }
 
+        // Function to check if email is verified
+        protected bool checkEmailVerify()
+        {
+            bool result = false;
+
+            SqlConnection connection = new SqlConnection(MyDBConnectionString);
+            // SQL statement to select last 2 unique password hashes
+            string sql = "SELECT EmailVerified FROM Account WHERE Email = @Email;";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@Email", email);
+
+            try
+            {
+                connection.Open();
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["EmailVerified"] != null && reader["EmailVerified"] != DBNull.Value)
+                        {
+                            result = Convert.ToBoolean(reader["EmailVerified"]);
+                        }
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            finally { connection.Close(); }
+
+            return result;
+        }
+
         protected void changePwdBtn_Click(object sender, EventArgs e)
         {
             Response.Redirect("ChangePassword.aspx", false);
+            return;
+        }
+
+        protected void verifyBtn_Click(object sender, EventArgs e)
+        {
+            Response.Redirect("Verification.aspx", false);
             return;
         }
     }

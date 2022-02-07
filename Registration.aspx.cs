@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.Logging;
+﻿using DotNetEnv;
+using Microsoft.VisualBasic.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -27,10 +29,17 @@ namespace _200776P_PracAssignment
         static string salt;
         byte[] Key;
         byte[] IV;
+        string senderUser;
+        string senderPass;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+            // Replace string below with path to .env file
+            Env.Load("C:/Users/mdirf/Desktop/School/Y2S2/App. Security/Assignment/200776P_PracAssignment/.env");
+            senderUser = Environment.GetEnvironmentVariable("USER");
+            senderPass = Environment.GetEnvironmentVariable("PASS");
+            //Env.Load();
+            //Env.TraversePath().Load();
         }
 
         private int checkPassword(string password)
@@ -248,6 +257,7 @@ namespace _200776P_PracAssignment
                     IV = cipher.IV;
 
                     createAccount(fName, lName, email, finalHash, DOB, imageBytes, CCInfo, salt, IV, Key);
+                    sendVerificationCode(email);
 
                     Response.Redirect("Login.aspx", false);
                     return;
@@ -308,7 +318,98 @@ namespace _200776P_PracAssignment
             }
         }
 
-        // Function to excrpt data using symmetric key
+        // Function to send verification code to email
+        // and add details to database
+        protected void sendVerificationCode(string email)
+        {
+            if (checkEmailDB(email))
+            {
+                try
+                {
+                    // Generate verification code
+                    string code = generateCode(email);
+                    // Store code in database
+                    storeInVerificationTable(email, code);
+
+                    // Subject and Message to email to user
+                    //string emailMsg = "Your verification code is " + HttpUtility.HtmlEncode(code) + "\n\nThis code will expire in 5 minutes.";
+                    string emailMsg = "Your verification code is " + HttpUtility.HtmlEncode(code);
+                    string subjectMsg = "Please verify your account";
+
+                    // Create email
+                    MailMessage mail = new MailMessage();
+                    mail.To.Add(email);
+                    mail.From = new MailAddress(senderUser);
+                    mail.Subject = subjectMsg;
+                    mail.Body = emailMsg;
+
+                    SmtpClient smtp = new SmtpClient();
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.UseDefaultCredentials = false;
+                    smtp.Credentials = new System.Net.NetworkCredential(senderUser, senderPass);
+                    smtp.EnableSsl = true;
+
+                    // Send email
+                    smtp.Send(mail);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.ToString());
+                }
+            }
+        }
+
+        // Function to save details in VerificationTable
+        protected void storeInVerificationTable(string email, string code)
+        {
+            try
+            {
+                string sqlString = "INSERT INTO VerificationTable VALUES(@Id, @Email, @Code, @DateCreated)";
+
+                using (SqlConnection con = new SqlConnection(MyDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlString))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@Id", Guid.NewGuid());
+                            cmd.Parameters.AddWithValue("@Email", email);
+                            cmd.Parameters.AddWithValue("@Code", code);
+                            cmd.Parameters.AddWithValue("@DateCreated", DateTime.Now);
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        // Function to generate verification code
+        protected string generateCode(string email)
+        {
+            string code;
+
+            Random random = new Random();
+            string valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            code = new string(Enumerable.Repeat(valid, 10).Select(s => s[random.Next(s.Length)]).ToArray());
+            Debug.WriteLine("code:" + code);
+            Debug.WriteLine("code length:" + code.Length);
+
+            return code;
+        }
+
+        // Function to encrypt data using symmetric key
         protected byte[] encryptData(string data)
         {
             byte[] cipherText = null;
@@ -337,7 +438,7 @@ namespace _200776P_PracAssignment
 
             string captchaResponse = Request.Form["g-recaptcha-response"];
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(
-                "https://www.google.com/recaptcha/api/siteverify?secret=6Ldga1UeAAAAAPN0rZv1SBZXMsCqbzUShnMQPBz2 &response=" + HttpUtility.UrlEncode(captchaResponse)
+                "https://www.google.com/recaptcha/api/siteverify?secret=" + HttpUtility.UrlEncode(Environment.GetEnvironmentVariable("SECRET_KEY")) + " &response=" + HttpUtility.UrlEncode(captchaResponse)
                 );
 
             try
