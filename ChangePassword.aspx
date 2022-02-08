@@ -46,19 +46,6 @@
                 document.getElementById("newPassword_lbl").classList.remove("text-danger");
                 document.getElementById("newPassword_lbl").classList.add("text-success");
             }
-
-            //function showDiv() {
-            //    var msgLength = document.getElementById("alertMsg_display").innerHTML.length;
-            //    console.log(msgLength);
-            //    if (msgLength == 0) {
-            //        document.getElementById("alertDiv").classList.remove("alert-danger");
-            //        document.getElementById("alertDiv").classList.add("hide");
-            //    }
-            //    else {
-            //        document.getElementById("alertDiv").classList.remove("hide");
-            //        document.getElementById("alertDiv").classList.add("alert-danger");
-            //    }
-            //}
         }
     </script>
 
@@ -91,6 +78,8 @@
               <asp:Label ID="alertMsg_display" runat="server"></asp:Label>
             </div>
             <script type="text/javascript">
+
+                // Display alert if max password age reached
                 var msgLength = document.getElementById("alertMsg_display").innerHTML.length;
                 if (msgLength == 0) {
                     document.getElementById("alertDiv").classList.remove("alert-danger");

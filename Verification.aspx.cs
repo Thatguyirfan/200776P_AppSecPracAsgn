@@ -2,8 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
+using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -19,8 +22,6 @@ namespace _200776P_PracAssignment
         {
             // Replace string below with path to .env file
             Env.Load("C:/Users/mdirf/Desktop/School/Y2S2/App. Security/Assignment/200776P_PracAssignment/.env");
-            //Env.Load();
-            //Env.TraversePath().Load();
 
             // Check if session is valid
             if (Session["LoggedIn"] != null && Session["AuthToken"] != null && Request.Cookies["AuthToken"] != null)
@@ -54,39 +55,47 @@ namespace _200776P_PracAssignment
 
         protected void verifyBtn_Click(object sender, EventArgs e)
         {
-            if (checkEmailDB())
+            if (validateCaptcha())
             {
-                string userCode = Request.Form["verificationCode"];
-                string dbCode = retrieveVerificationCode();
-                if (userCode.Equals(dbCode))
+                if (checkEmailDB())
                 {
-                    // Update EmailVerified in database
-                    SqlConnection connection = new SqlConnection(MyDBConnectionString);
-                    string sqlUpdate = "UPDATE Account SET EmailVerified=@EmailVerified WHERE Email=@Email";
-                    SqlCommand command = new SqlCommand(sqlUpdate, connection);
-                    command.Parameters.AddWithValue("@EmailVerified", 1);
-                    command.Parameters.AddWithValue("@Email", email);
-
-                    try
+                    // Check if verification code matches the one in the database
+                    string userCode = Request.Form["verificationCode"];
+                    string dbCode = retrieveVerificationCode();
+                    if (userCode.Equals(dbCode))
                     {
-                        connection.Open();
+                        // Update EmailVerified in database
+                        SqlConnection connection = new SqlConnection(MyDBConnectionString);
+                        string sqlUpdate = "UPDATE Account SET EmailVerified=@EmailVerified WHERE Email=@Email";
+                        SqlCommand command = new SqlCommand(sqlUpdate, connection);
+                        command.Parameters.AddWithValue("@EmailVerified", 1);
+                        command.Parameters.AddWithValue("@Email", email);
 
-                        command.ExecuteNonQuery();
+                        try
+                        {
+                            connection.Open();
+
+                            command.ExecuteNonQuery();
+                        }
+
+                        catch (Exception ex)
+                        {
+                            throw new Exception(ex.ToString());
+                        }
+
+                        finally { connection.Close(); }
+
+                        // Delete verification code from table
+                        deleteVerificationRecord();
+
+                        Response.Redirect("Home.aspx", false);
+                        return;
                     }
-
-                    catch (Exception ex)
-                    {
-                        throw new Exception(ex.ToString());
-                    }
-
-                    finally { connection.Close(); }
-
-                    // Delete verification code
-                    deleteVerificationRecord();
-
-                    Response.Redirect("Home.aspx", false);
-                    return;
                 }
+            }
+            else
+            {
+                errorMsg.Text = "Please try again";
             }
         }
 
@@ -115,7 +124,7 @@ namespace _200776P_PracAssignment
             return;
         }
 
-        // Function to retreieve verification code from database
+        // Function to retrieve verification code from database
         protected string retrieveVerificationCode()
         {
             string code = null;
@@ -219,6 +228,35 @@ namespace _200776P_PracAssignment
             finally { connection.Close(); }
 
             return pwdAge;
+        }
+
+        public bool validateCaptcha()
+        {
+            bool result = true;
+
+            string captchaResponse = Request.Form["g-recaptcha-response"];
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(
+                "https://www.google.com/recaptcha/api/siteverify?secret=" + HttpUtility.UrlEncode(Environment.GetEnvironmentVariable("SECRET_KEY")) + " &response=" + HttpUtility.UrlEncode(captchaResponse)
+                );
+
+            try
+            {
+                using (WebResponse wResponse = req.GetResponse())
+                {
+                    using (StreamReader readStream = new StreamReader(wResponse.GetResponseStream()))
+                    {
+                        string jsonResponse = readStream.ReadToEnd();
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        MyObject jsonObject = js.Deserialize<MyObject>(jsonResponse);
+                        result = Convert.ToBoolean(jsonObject.success);
+                    }
+                }
+                return result;
+            }
+            catch (WebException ex)
+            {
+                throw ex;
+            }
         }
     }
 }

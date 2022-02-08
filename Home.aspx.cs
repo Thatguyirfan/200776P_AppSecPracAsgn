@@ -36,6 +36,8 @@ namespace _200776P_PracAssignment
                         Response.Redirect("ChangePassword.aspx", false);
                     }
 
+                    // Change visibility of button to verification page 
+                    // depending on whther user is verified or not
                     if (!checkEmailVerify())
                     {
                         verifyBtn.Visible = true;
@@ -45,6 +47,7 @@ namespace _200776P_PracAssignment
                         verifyBtn.Visible = false;
                     }
 
+                    // Display details in home page
                     retrieveDetails(email);
                     return;
                 }
@@ -63,7 +66,7 @@ namespace _200776P_PracAssignment
 
         protected void signOutBtn_Click(object sender, EventArgs e)
         {
-            // Cear session
+            // Clear session
             Session.Clear();
             Session.Abandon();
             Session.RemoveAll();
@@ -82,6 +85,8 @@ namespace _200776P_PracAssignment
             }
         }
 
+        // Function to retrieve account details from database 
+        // and display in home page
         protected void retrieveDetails(string email)
         {
             SqlConnection connection = new SqlConnection(MyDBConnectionString);
@@ -97,6 +102,8 @@ namespace _200776P_PracAssignment
                 {
                     while (reader.Read())
                     {
+                       // HTML Encode all details retrieved from database
+
                         // Retrieve image data
                         byte[] imageData = (byte[]) reader["Photo"];
                         photo.ImageUrl = "data:Image/png;base64," + HttpUtility.HtmlEncode(Convert.ToBase64String(imageData));
@@ -107,6 +114,8 @@ namespace _200776P_PracAssignment
                         email_title.Text = HttpUtility.HtmlEncode(reader["Email"].ToString());
                         DateTime DOB = DateTime.Parse(reader["DOB"].ToString());
                         DOB_display.Text = HttpUtility.HtmlEncode(DOB.ToShortDateString());
+
+                        // Decrypt Credit Card Number
                         CCInfo = Convert.FromBase64String(reader["CCInfo"].ToString());
                         IV = Convert.FromBase64String(reader["IV"].ToString());
                         Key = Convert.FromBase64String(reader["Key"].ToString());

@@ -39,8 +39,6 @@ namespace _200776P_PracAssignment
         {
             // Replace string below with path to .env file
             Env.Load("C:/Users/mdirf/Desktop/School/Y2S2/App. Security/Assignment/200776P_PracAssignment/.env");
-            //Env.Load();
-            //Env.TraversePath().Load();
         }
 
         protected void loginBtn_Click(object sender, EventArgs e)
@@ -51,7 +49,7 @@ namespace _200776P_PracAssignment
                 string email = Request.Form["email"];
                 string password = Request.Form["password"];
             
-                // Check if user exists in database
+                // Check if user exists in database and string is not empty/null
                 if ((!String.IsNullOrEmpty(email)) && (!String.IsNullOrEmpty(password) && checkEmailDB(email)))
                 {
                     int attemptsLeft = retrieveLoginAttempt(email);
@@ -82,7 +80,8 @@ namespace _200776P_PracAssignment
 
                                     Response.Cookies.Add(new HttpCookie("AuthToken", guid));
 
-                                    // Reset login attempts
+                                    // Reset login attempts if login successful
+                                    // and attempts less than 3
                                     if (attemptsLeft < 3)
                                     {
                                         resetLoginAttempts(email);
@@ -128,54 +127,6 @@ namespace _200776P_PracAssignment
                 loginMsg.Text = "Incorrect username or password";
             }
         }
-
-        // Function to add LoggedIn details in audit table
-        //protected void auditLogin()
-        //{
-
-        //}
-
-        //protected void retrieveDetails()
-        //{
-        //    SqlConnection connection = new SqlConnection(MyDBConnectionString);
-        //    string sql = "SELECT * FROM Account WHERE Email=@Email";
-        //    SqlCommand command = new SqlCommand(sql, connection);
-        //    command.Parameters.AddWithValue("@Email", globalEmail);
-
-        //    try
-        //    {
-        //        connection.Open();
-
-        //        using (SqlDataReader reader = command.ExecuteReader())
-        //        {
-        //            while (reader.Read())
-        //            {
-        //                // Retrieve image data
-        //                fName = reader["FName"].ToString();
-        //                lName = reader["LName"].ToString();
-        //                globalEmail = reader["Email"].ToString();
-        //                finalHash = reader["PasswordHash"].ToString();
-        //                DOB = reader["DOB"].ToString();
-        //                imageBytes = (byte[])reader["Photo"];
-        //                CCInfo = reader["CCInfo"].ToString();
-        //                salt = reader["PasswordSalt"].ToString();
-        //                IV = (byte[])reader["IV"];
-        //                Key = (byte[])reader["Key"];
-        //                emailVerified = Convert.ToInt32(reader["EmailVerified"]);
-        //                globalAttemptsLeft = Convert.ToInt32(reader["AttemptsLeft"]);
-        //            }
-        //        }
-        //    }
-
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(ex.ToString());
-        //    }
-
-        //    finally { connection.Close(); }
-
-        //    return;
-        //}
 
         // Function to reset number of login attempts on successful login
         protected void resetLoginAttempts(string email)

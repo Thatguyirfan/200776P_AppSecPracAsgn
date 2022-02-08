@@ -35,6 +35,7 @@
         }
     </style>
 
+    <%-- Javascript functions for front-end validation --%>
     <script type="text/javascript">
         function validate() {
             var str = document.getElementById("password").value;

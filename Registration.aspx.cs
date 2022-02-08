@@ -36,10 +36,10 @@ namespace _200776P_PracAssignment
         {
             // Replace string below with path to .env file
             Env.Load("C:/Users/mdirf/Desktop/School/Y2S2/App. Security/Assignment/200776P_PracAssignment/.env");
+
+            // Retrieve private info from .env file
             senderUser = Environment.GetEnvironmentVariable("USER");
             senderPass = Environment.GetEnvironmentVariable("PASS");
-            //Env.Load();
-            //Env.TraversePath().Load();
         }
 
         private int checkPassword(string password)
@@ -100,7 +100,7 @@ namespace _200776P_PracAssignment
                 bool validation = true;
 
 
-                // Form validation
+                // Form input validation
                 string msg = "Field cannot be empty";
                 if (String.IsNullOrEmpty(fName) || fName.Length >= 50 || Regex.IsMatch(fName, "[^A-Za-z]"))
                 {
@@ -224,6 +224,8 @@ namespace _200776P_PracAssignment
                         break;
                 }
                 password_lbl.Text = "Password Strength : " + status;
+
+                // If password not strong enough, validation fails
                 if (scores < 4)
                 {
                     password_lbl.ForeColor = Color.Red;
@@ -235,8 +237,7 @@ namespace _200776P_PracAssignment
                 // Redirect to Login & store in database if validation == true
                 if (validation)
                 {
-                    // Store input in database
-
+                    // Password protection
                     // Generate salt
                     RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
                     byte[] saltByte = new byte[8];
@@ -256,7 +257,10 @@ namespace _200776P_PracAssignment
                     Key = cipher.Key;
                     IV = cipher.IV;
 
+                    // Store input in database
                     createAccount(fName, lName, email, finalHash, DOB, imageBytes, CCInfo, salt, IV, Key);
+
+                    // Send verification code to email upon successful registration
                     sendVerificationCode(email);
 
                     Response.Redirect("Login.aspx", false);
@@ -403,8 +407,8 @@ namespace _200776P_PracAssignment
             Random random = new Random();
             string valid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             code = new string(Enumerable.Repeat(valid, 10).Select(s => s[random.Next(s.Length)]).ToArray());
-            Debug.WriteLine("code:" + code);
-            Debug.WriteLine("code length:" + code.Length);
+            //Debug.WriteLine("code:" + code);
+            //Debug.WriteLine("code length:" + code.Length);
 
             return code;
         }

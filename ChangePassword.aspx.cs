@@ -30,8 +30,6 @@ namespace _200776P_PracAssignment
         {
             // Replace string below with path to .env file
             Env.Load("C:/Users/mdirf/Desktop/School/Y2S2/App. Security/Assignment/200776P_PracAssignment/.env");
-            //Env.Load();
-            //Env.TraversePath().Load();
 
             // Check if session is valid
             if (Session["LoggedIn"] != null && Session["AuthToken"] != null && Request.Cookies["AuthToken"] != null)
@@ -41,6 +39,9 @@ namespace _200776P_PracAssignment
                     // Retrieve email from session variable
                     email = Session["LoggedIn"].ToString();
 
+                    // User has to change password every 6 months
+                    // Maximum password age
+                    // To display in alert div
                     if (passwordAge(email).AddMonths(6) < DateTime.Now)
                     {
                         alertMsg_display.Text = "You need to change your password!";
@@ -68,7 +69,7 @@ namespace _200776P_PracAssignment
                 string currPassword = Request.Form["currPassword"];
                 string newPassword = Request.Form["newPassword"];
 
-                // Check if user exists in database
+                // Check if user exists in database and string is not empty/null
                 if ((!String.IsNullOrEmpty(currPassword)) && (!String.IsNullOrEmpty(newPassword) && checkEmailDB(email)))
                 {
                     // Check current password
@@ -111,6 +112,8 @@ namespace _200776P_PracAssignment
                                         break;
                                 }
                                 newPassword_lbl.Text = "Password Strength : " + status;
+
+                                // Check if new password is strong enough
                                 if (scores < 4)
                                 {
                                     newPassword_lbl.ForeColor = Color.Red;
@@ -279,7 +282,7 @@ namespace _200776P_PracAssignment
                                 if (!pwdList.Contains(pwd))
                                 {
                                     pwdList.Add(pwd);
-                                    Debug.WriteLine(pwd);
+                                    //Debug.WriteLine(pwd);
 
                                     if (pwdList.Count() == 2)
                                     {
